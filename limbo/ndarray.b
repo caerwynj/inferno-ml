@@ -1,5 +1,11 @@
-implement Ndarray;
+implement Ndarray, Command;
+include "cmd.m";
 include "ndarray.m";
+
+main(nil: list of string)
+{
+
+}
 
 relu(x, y: real): real
 {
@@ -23,12 +29,97 @@ div(x, y: real): real
 	return x / y;
 }
 
+mul(x, y: real): real
+{
+	return x * y;
+}
+
+
+ndarray.col(nd: self ndarray, start, end: int): ndarray
+{
+	return ndarray(nd.m, nd.L, end - start, nd.a[start*nd.L:end*nd.L]);
+}
+
+ndarray.transpose(nd: self ndarray): ndarray
+{
+	ar := array[nd.m * nd.n] of real;
+
+	lda := nd.n;
+	for(i := 0; i< nd.m; i++)
+		for(j := 0; j < nd.n; j++)
+			ar[j+lda*i] = nd.a[i+nd.L*j];
+	return ndarray(nd.n, lda, nd.m, ar);
+}
+
+randn(m, n: int): ndarray
+{
+	r := array[m * n] of real;
+	bigg: int = (1<<30);
+	for (i := 0; i < len r; i++) {
+		r[i] = real rand(bigg) / real bigg;
+	}
+	return ndarray(m, m, n, r);
+}
+
+zeros(m, n: int): ndarray
+{
+	r := array[m*n] of {* => 0.0};
+	return ndarray(m, m, n, r);
+}
+
+ones(m, n: int): ndarray
+{
+	r := array[m*n] of {* => 1.0};
+	return ndarray(m, m, n, r);
+}
+
+# concatenate column vectors from left to right
+concatenate(alist: list of ndarray): ndarray
+{
+	m := (hd alist).m;
+
+	total_cols := 0;
+	for (l := alist; l != nil; l = tl l){
+		total_cols += (hd l).n;
+	}
+
+	ar := array[m * total_cols] of real;
+	c := 0;
+	for (l = alist; l != nil; l = tl l) {
+		ar[c:] = (hd l).a;
+		c += len (hd l).a;
+	}
+	return ndarray(m, m, total_cols, ar);
+
+}
+
 ndarray.dot(nd: self ndarray, x: ndarray): ndarray
 {
 	ar := array[nd.m * x.n] of {* => .0};
 
 	gemm('N', 'N', nd.m, x.n, nd.n, 1., nd.a, nd.L, x.a, x.L, 1., ar, nd.L);
 	return ndarray(nd.m, nd.L, x.n, ar);;
+}
+
+ndarray.subtract(nd: self ndarray, val: ndarray): ndarray
+{
+	ar := array[nd.m * nd.n] of {* => .0};
+	if(nd.m == val.m && nd.n == val.n) {  # arrays are same shape
+		for(i := 0; i < nd.m; i++) {
+			for(j := 0; j < nd.n; j++) {
+				ar[i+nd.L*j] = nd.a[i+nd.L*j] - val.a[i+nd.L*j];
+			}
+		}
+	}else if(nd.n == val.n && val.m == 1) { # broadcast
+		for(i := 0; i < nd.m; i++) {
+			for(j := 0; j < nd.n; j++) {
+				ar[i+nd.L*j] = nd.a[i+nd.L*j] - val.a[j];
+			}
+		}
+	}else 
+		raise "shape mismatch";
+
+	return ndarray(nd.m, nd.L, nd.n, ar);
 }
 
 ndarray.broadcast(nd: self ndarray, val: ndarray, f: ufunc): ndarray
@@ -101,11 +192,10 @@ ndarray.std(nd: self ndarray): ndarray
 	return ndarray(nd.n, nd.n, 1, stds);
 }
 
-
 read_csv(name: string): (int, int, int, array of real)
 {
 	fd := bufio->open(name, bufio->OREAD);
-	header := csv->getline(fd);
+	#header := csv->getline(fd);
 	s : list of string = nil;
 	lines : list of list of string;
 	while((s = csv->getline(fd)) != nil){
@@ -114,7 +204,7 @@ read_csv(name: string): (int, int, int, array of real)
 
 	m, n : int = 0;
 	m = len lines;
-	n = len header;
+	n = len hd lines;
 	lda := m;
 	v := array[m * n] of {* => 0.0};
 
@@ -130,11 +220,26 @@ read_csv(name: string): (int, int, int, array of real)
 		}
 		lines = tl lines;
 	}
-	for (h := header; h != nil; h = tl h)
-		print("%s ", hd h);
-	print("\n");
+#	for (h := header; h != nil; h = tl h)
+#		print("%s ", hd h);
+#	print("\n");
 
 	#printmat("a", v, lda, 30, n);
 
 	return (m, lda, n, v);
+}
+
+to_csv(filename: string, nd: ndarray)
+{
+	fd := bufio->create(filename, bufio->OWRITE, 8r660);
+	
+	for(i := 0; i < nd.m; i++) {
+		fd.puts(sprint("%f", nd.a[i]));
+		for(j := 1; j < nd.n; j++)
+			fd.puts(sprint(",%f", nd.a[i+nd.L*j]));
+		fd.puts("\n");
+
+	}
+	fd.flush();
+	fd.close();
 }

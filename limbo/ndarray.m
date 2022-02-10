@@ -11,7 +11,10 @@ Ndarray: module {
 		apply: fn(nd: self ndarray, val: real, f: ufunc): ndarray;
 		broadcast: fn(nd: self ndarray, val: ndarray, f: ufunc): ndarray;
 		dot: fn(nd: self ndarray, x: ndarray): ndarray;
-	
+		col: fn(nd: self ndarray, start, end: int): ndarray;
+		subtract: fn(nd: self ndarray, val: ndarray): ndarray;
+		transpose: fn(nd: self ndarray): ndarray;
+
 	# flatten, transpose, item, reshape, argmax
 	# max, min, var, all, any, lt, le, gt, ge, eq, ne
 	# inplace apply
@@ -20,5 +23,20 @@ Ndarray: module {
 	};
 	
 	ufunc: type ref fn(x, y: real): real;
+
+	relu: fn(x, y:real):real;
+	add: fn(x, y: real):real;
+	minus: fn(x, y:real):real;
+	div: fn(x, y: real):real;
+	mul: fn(x, y: real): real;
+
+	read_csv: fn(name: string): (int, int, int, array of real);
+	to_csv: fn(filename: string, nd: ndarray);
+	randn: fn(m, n: int): ndarray;
+	zeros: fn(m, n: int): ndarray;
+	ones: fn(m, n: int): ndarray;
+	concatenate: fn(alist: list of ndarray): ndarray;
+
+	init:fn(ctxt: ref Draw->Context, argv: list of string); 
 
 };

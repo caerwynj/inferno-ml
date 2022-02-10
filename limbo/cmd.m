@@ -2,10 +2,10 @@
 include "sys.m";
 include "draw.m";
 sys: Sys;
-print: import sys;
+print, sprint: import sys;
 include "math.m";
 math: Math;
-ceil, fabs, floor, Infinity, log10, pow10, sqrt: import math;
+ceil, fabs, floor, Infinity, log10, pow10, pow, sqrt: import math;
 dot, gemm, iamax: import math;
 include "linalg.m";
 linalg: LinAlg;
@@ -17,6 +17,7 @@ tobig, toint, toreal, tolower, toupper: import str;
 
 include "bufio.m";
 bufio: Bufio;
+Iobuf: import bufio;
 
 include "csv.m";
 csv: CSV;
@@ -24,6 +25,10 @@ csv: CSV;
 include "rand.m";
 randmod: Rand;
 rand: import randmod;
+
+false, true: con iota;
+bool: type int;
+
 
 Command:module
 { 
