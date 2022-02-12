@@ -1,1 +1,3 @@
-t7.dis ../../Docker/ex1data1.txt
+t7.dis ../data/ex1data1.txt
+t9.dis ../data/ex1data2.txt
+t10.dis j_hist.csv

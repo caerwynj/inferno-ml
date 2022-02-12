@@ -5,6 +5,7 @@ include "ndarray.m";
 np : Ndarray;
 ndarray:  import np;
 
+# Linear regression with one feature
 main(argv: list of string)
 {
 	np = load Ndarray Ndarray->PATH;

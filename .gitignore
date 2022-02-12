@@ -1,4 +1,4 @@
-data
 *.dis
 *.sbl
-*.csv
+*.pat
+j_hist.csv

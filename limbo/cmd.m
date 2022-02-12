@@ -3,10 +3,12 @@ include "sys.m";
 include "draw.m";
 sys: Sys;
 print, sprint: import sys;
+
 include "math.m";
 math: Math;
 ceil, fabs, floor, Infinity, log10, pow10, pow, sqrt: import math;
 dot, gemm, iamax: import math;
+
 include "linalg.m";
 linalg: LinAlg;
 printmat, dgefa, dgesl: import linalg;

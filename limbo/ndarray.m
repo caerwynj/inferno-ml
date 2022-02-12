@@ -12,7 +12,9 @@ Ndarray: module {
 		broadcast: fn(nd: self ndarray, val: ndarray, f: ufunc): ndarray;
 		dot: fn(nd: self ndarray, x: ndarray): ndarray;
 		col: fn(nd: self ndarray, start, end: int): ndarray;
+		row: fn(nd: self ndarray, start, end: int): ndarray;
 		subtract: fn(nd: self ndarray, val: ndarray): ndarray;
+		divide: fn(nd: self ndarray, val: ndarray): ndarray;
 		transpose: fn(nd: self ndarray): ndarray;
 
 	# flatten, transpose, item, reshape, argmax
@@ -32,6 +34,7 @@ Ndarray: module {
 
 	read_csv: fn(name: string): (int, int, int, array of real);
 	to_csv: fn(filename: string, nd: ndarray);
+	from_list: fn(a: list of real): ndarray;
 	randn: fn(m, n: int): ndarray;
 	zeros: fn(m, n: int): ndarray;
 	ones: fn(m, n: int): ndarray;
