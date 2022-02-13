@@ -1,8 +1,12 @@
 
 include "sys.m";
-include "draw.m";
 sys: Sys;
 print, sprint: import sys;
+
+include "draw.m";
+include "tk.m";
+	tk: Tk;
+
 
 include "math.m";
 math: Math;
@@ -28,6 +32,14 @@ include "rand.m";
 randmod: Rand;
 rand: import randmod;
 
+include "gr.m";
+	gr: GR;
+	Plot: import gr;
+
+include "ndarray.m";
+np: Ndarray;
+ndarray: import np;
+
 false, true: con iota;
 bool: type int;
 
@@ -37,7 +49,9 @@ Command:module
 	init:fn(ctxt: ref Draw->Context, argv: list of string); 
 };
 
-init(nil: ref Draw->Context, argv: list of string)
+ctxt: ref Draw->Context;
+
+init(c: ref Draw->Context, argv: list of string)
 {
 	sys = load Sys Sys->PATH;
 	math = load Math Math->PATH;
@@ -46,8 +60,18 @@ init(nil: ref Draw->Context, argv: list of string)
 	bufio = load Bufio Bufio->PATH;
 	csv = load CSV CSV->PATH;
 	randmod = load Rand Rand->PATH;
+	np = load Ndarray Ndarray->PATH;
+	tk = load Tk Tk->PATH;
+	gr = load GR GR->PATH;
 
+	ctxt = c;
+	np->init();
 	randmod->init(1337);
 	csv->init(bufio);
 	main(argv);
+}
+
+plotinit(title: string): ref Plot
+{
+	return gr->open(ctxt, title);
 }

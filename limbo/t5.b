@@ -1,18 +1,18 @@
 implement Command;
 include "cmd.m";
 
-ndarray: adt {
+xdarray: adt {
 	m, L, n: int;
 	a: array of real;
 
-	sum: fn(nd: self ndarray): ndarray;
-	mean: fn(nd: self ndarray): ndarray;
-	std: fn(nd: self ndarray): ndarray;
-	print: fn(nd: self ndarray, name: string);
-	apply: fn(nd: self ndarray, val: real, f: ufunc): ndarray;
-	broadcast: fn(nd: self ndarray, val: ndarray, f: ufunc): ndarray;
-	dot: fn(nd: self ndarray, x: ndarray): ndarray;
-	col: fn(nd: self ndarray, start, end: int): ndarray;
+	sum: fn(nd: self xdarray): xdarray;
+	mean: fn(nd: self xdarray): xdarray;
+	std: fn(nd: self xdarray): xdarray;
+	print: fn(nd: self xdarray, name: string);
+	apply: fn(nd: self xdarray, val: real, f: ufunc): xdarray;
+	broadcast: fn(nd: self xdarray, val: xdarray, f: ufunc): xdarray;
+	dot: fn(nd: self xdarray, x: xdarray): xdarray;
+	col: fn(nd: self xdarray, start, end: int): xdarray;
 
 # flatten, transpose, item, reshape, argmax
 # max, min, var, all, any, lt, le, gt, ge, eq, ne
@@ -34,7 +34,7 @@ main(argv: list of string)
 
 	print("%s\n", hd argv);
 	(m, lda, n, a) := read_csv(hd argv);
-	nd := ndarray(m, lda, n, a);
+	nd := xdarray(m, lda, n, a);
 
 	#printmat("a", a, lda, 30, n);
 
@@ -49,7 +49,7 @@ main(argv: list of string)
 	z.print("z");
 	znorm := nd.broadcast(means, minus).broadcast(stds, div);
 
-	#ndarray(nd.m, nd.L, 1, nd.a[3*nd.L:4*nd.L]).print("slice");
+	#xdarray(nd.m, nd.L, 1, nd.a[3*nd.L:4*nd.L]).print("slice");
 
 	x := znorm.col(0,3);
 	targ := nd.col(3,4);
@@ -61,19 +61,19 @@ main(argv: list of string)
 
 }
 
-ndarray.col(nd: self ndarray, start, end: int): ndarray
+xdarray.col(nd: self xdarray, start, end: int): xdarray
 {
-	return ndarray(nd.m, nd.L, end - start, nd.a[start*nd.L:end*nd.L]);
+	return xdarray(nd.m, nd.L, end - start, nd.a[start*nd.L:end*nd.L]);
 }
 
-randn(m, n: int): ndarray
+randn(m, n: int): xdarray
 {
 	r := array[m * n] of real;
 	bigg: int = (1<<30);
 	for (i := 0; i < len r; i++) {
 		r[i] = real rand(bigg) / real bigg;
 	}
-	return ndarray(m, m, n, r);
+	return xdarray(m, m, n, r);
 }
 
 # prep data
@@ -103,15 +103,15 @@ div(x, y: real): real
 	return x / y;
 }
 
-ndarray.dot(nd: self ndarray, x: ndarray): ndarray
+xdarray.dot(nd: self xdarray, x: xdarray): xdarray
 {
 	ar := array[nd.m * x.n] of {* => .0};
 
 	gemm('N', 'N', nd.m, x.n, nd.n, 1., nd.a, nd.L, x.a, x.L, 1., ar, nd.L);
-	return ndarray(nd.m, nd.L, x.n, ar);;
+	return xdarray(nd.m, nd.L, x.n, ar);;
 }
 
-ndarray.broadcast(nd: self ndarray, val: ndarray, f: ufunc): ndarray
+xdarray.broadcast(nd: self xdarray, val: xdarray, f: ufunc): xdarray
 {
 	if(val.m != nd.n) {
 		print("invalid broadcast\n");
@@ -124,20 +124,20 @@ ndarray.broadcast(nd: self ndarray, val: ndarray, f: ufunc): ndarray
 			ar[i+nd.L*j] = f(nd.a[i+nd.L*j], val.a[j]);
 		}
 	}
-	return ndarray(nd.m, nd.L, nd.n, ar);
+	return xdarray(nd.m, nd.L, nd.n, ar);
 }
 
-ndarray.apply(nd: self ndarray, val: real, f: ufunc): ndarray
+xdarray.apply(nd: self xdarray, val: real, f: ufunc): xdarray
 {
 	ar := array[nd.m*nd.n] of {* => .0};
 
 	for(i := 0; i < nd.m; i++)
 		for(j := 0; j < nd.n; j++)
 			ar[i+nd.L*j] = f(nd.a[i+nd.L*j], val);
-	return ndarray(nd.m, nd.L, nd.n, ar);
+	return xdarray(nd.m, nd.L, nd.n, ar);
 }
 
-ndarray.print(nd: self ndarray, name: string)
+xdarray.print(nd: self xdarray, name: string)
 {
 	m := nd.m;
 	if(m > 30)
@@ -145,7 +145,7 @@ ndarray.print(nd: self ndarray, name: string)
 	printmat(name, nd.a, nd.L, m, nd.n);
 }
 
-ndarray.sum(nd: self ndarray): ndarray
+xdarray.sum(nd: self xdarray): xdarray
 {
 	sums := array[nd.n] of { * => 0.0};
 
@@ -154,10 +154,10 @@ ndarray.sum(nd: self ndarray): ndarray
 			sums[j] += nd.a[i+nd.L*j];
 		}
 	}
-	return ndarray(nd.n, nd.n, 1, sums);
+	return xdarray(nd.n, nd.n, 1, sums);
 }
 
-ndarray.mean(nd: self ndarray): ndarray
+xdarray.mean(nd: self xdarray): xdarray
 {
 	means := nd.sum();
 	for (i := 0; i < len means.a; i++)
@@ -165,7 +165,7 @@ ndarray.mean(nd: self ndarray): ndarray
 	return means;
 }
 
-ndarray.std(nd: self ndarray): ndarray
+xdarray.std(nd: self xdarray): xdarray
 {
 	means := nd.mean();
 	stds := array[nd.n] of {* => 0.0};
@@ -178,7 +178,7 @@ ndarray.std(nd: self ndarray): ndarray
 	for(i = 0; i < nd.n; i++) {
 		stds[i] = sqrt(stds[i] / real nd.m);
 	}
-	return ndarray(nd.n, nd.n, 1, stds);
+	return xdarray(nd.n, nd.n, 1, stds);
 }
 
 

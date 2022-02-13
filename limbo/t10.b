@@ -37,7 +37,7 @@ init(ctxt: ref Draw->Context, argv: list of string)
 	}
 
 	np = load Ndarray Ndarray->PATH;
-	np->init(nil, nil);
+	np->init();
 
 	argv = tl argv;
 	if(argv == nil){

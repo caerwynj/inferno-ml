@@ -1,10 +1,45 @@
-implement Ndarray, Command;
-include "cmd.m";
+implement Ndarray;
 include "ndarray.m";
 
-main(nil: list of string)
-{
+include "sys.m";
+sys: Sys;
+print, sprint: import sys;
 
+include "math.m";
+math: Math;
+ceil, fabs, floor, Infinity, log10, pow10, pow, sqrt: import math;
+dot, gemm, iamax: import math;
+
+include "linalg.m";
+linalg: LinAlg;
+printmat, dgefa, dgesl: import linalg;
+
+include "string.m";
+str: String;
+tobig, toint, toreal, tolower, toupper: import str;
+
+include "bufio.m";
+bufio: Bufio;
+Iobuf: import bufio;
+
+include "csv.m";
+csv: CSV;
+
+include "rand.m";
+randmod: Rand;
+rand: import randmod;
+
+init()
+{
+	sys = load Sys Sys->PATH;
+	math = load Math Math->PATH;
+	linalg = load LinAlg LinAlg->PATH;
+	str = load String String->PATH;
+	bufio = load Bufio Bufio->PATH;
+	csv = load CSV CSV->PATH;
+	randmod = load Rand Rand->PATH;
+	randmod->init(1337);
+	csv->init(bufio);
 }
 
 relu(x, y: real): real
@@ -271,3 +306,14 @@ to_csv(filename: string, nd: ndarray)
 	fd.flush();
 	fd.close();
 }
+
+range(start, end: int): ndarray
+{
+	a := array[end - start] of real;
+
+	for(i:=0; i< len a; i++)
+		a[i] = real (i+start);
+
+	return ndarray(len a, len a, 1, a);
+}
+

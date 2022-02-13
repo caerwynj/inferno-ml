@@ -39,7 +39,8 @@ Ndarray: module {
 	zeros: fn(m, n: int): ndarray;
 	ones: fn(m, n: int): ndarray;
 	concatenate: fn(alist: list of ndarray): ndarray;
+	range: fn(start, end: int): ndarray;
 
-	init:fn(ctxt: ref Draw->Context, argv: list of string); 
+	init:fn(); 
 
 };

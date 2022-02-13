@@ -1,9 +1,8 @@
 implement Command;
 include "cmd.m";
 
-init(nil: ref Draw->Context , nil: list of string)
+main(nil: list of string)
 {
-	cmdinit();
 	print("hello, world!\n");
 	t1();
 }

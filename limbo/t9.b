@@ -1,16 +1,9 @@
 implement Command;
 include "cmd.m";
 
-include "ndarray.m";
-np : Ndarray;
-ndarray:  import np;
-
 # Linear regression with multiple features
 main(argv: list of string)
 {
-	np = load Ndarray Ndarray->PATH;
-	np->init(nil, nil);
-
 	argv = tl argv;
 	if(argv == nil){
 		print("no arg");
