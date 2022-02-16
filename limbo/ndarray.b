@@ -7,7 +7,7 @@ print, sprint: import sys;
 
 include "math.m";
 math: Math;
-ceil, fabs, floor, Infinity, log10, pow10, pow, sqrt: import math;
+ceil, fabs, floor, Infinity, log10, pow10, pow, sqrt, exp: import math;
 dot, gemm, iamax: import math;
 
 include "linalg.m";
@@ -67,6 +67,11 @@ div(x, y: real): real
 mul(x, y: real): real
 {
 	return x * y;
+}
+
+sigmoid(x, nil: real): real
+{
+	return 1. / (1. + exp(-x));
 }
 
 
@@ -264,6 +269,7 @@ read_csv(name: string): (int, int, int, array of real)
 		lines = s :: lines;
 	}
 
+	print("all lines read\n");
 	m, n : int = 0;
 	m = len lines;
 	n = len hd lines;
@@ -278,7 +284,7 @@ read_csv(name: string): (int, int, int, array of real)
 			w: string;
 			(rr, w) = toreal(hd row, 10);
 			v[i+lda*j] = rr;
-			#print("%d, %g\n", i, rr);
+			print("%d, %g\n", i, rr);
 			row = tl row;
 		}
 		lines = tl lines;

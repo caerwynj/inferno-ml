@@ -14,11 +14,38 @@ main(argv: list of string)
 
 	x := nd.col(0, 2);
 	y := nd.col(2, 3);
-	
+
+	b := np->ones(x.m, 1);
+	x= np->concatenate(b :: x :: nil);
+	x.print("x");
+
+	theta := np->zeros(x.n, 1);
+	z := sigmoid(x.dot(theta));
+	z.print("z");
+
+	j_hist: ndarray;
+
 }
 
-find(nd: ndarray, val: real): ndarray
+sigmoid(x: ndarray): ndarray
 {
-# return a boolean array
+# g = 1 ./ (1 + exp(-z));	
+#	a := array[x.m*x.n] of {* => 0.0};
+#	for (i := 0; i < x.m; i++)
+#		for(j := 0; j < x.n; j++) 
+#			a[i+x.L*j] = 1. / (1. + exp(-x.a[i+x.L*j]));
+	return x.apply(0., np->sigmoid);
+}
 
+cost(x, y, theta: ndarray): ndarray
+{
+# z = sigmoid(X * theta);
+# J = sum(-y' * log(z) - (1 - y)' * log(1 - z)) * 1 / length(X);
+
+	return ndarray(0,0,0,nil);
+}
+
+gradient_descent(x, y, theta: ndarray, alpha: real, niter: int): (ndarray, ndarray)
+{
+	return (ndarray(0,0,0,nil), ndarray(0,0,0,nil));
 }

@@ -10,7 +10,7 @@ include "tk.m";
 
 include "math.m";
 math: Math;
-ceil, fabs, floor, Infinity, log10, pow10, pow, sqrt: import math;
+ceil, fabs, floor, Infinity, log10, pow10, pow, sqrt, exp: import math;
 dot, gemm, iamax: import math;
 
 include "linalg.m";

@@ -31,6 +31,7 @@ Ndarray: module {
 	minus: fn(x, y:real):real;
 	div: fn(x, y: real):real;
 	mul: fn(x, y: real): real;
+	sigmoid: fn(x, nil: real): real;
 
 	read_csv: fn(name: string): (int, int, int, array of real);
 	to_csv: fn(filename: string, nd: ndarray);
