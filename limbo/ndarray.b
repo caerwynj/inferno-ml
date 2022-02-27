@@ -69,11 +69,29 @@ mul(x, y: real): real
 	return x * y;
 }
 
-sigmoid(x, nil: real): real
+sigmoid(x: real): real
 {
 	return 1. / (1. + exp(-x));
 }
 
+const(alpha: real): ndarray
+{
+	return ndarray(1, 1, 1, array[1] of {alpha});
+}
+
+ndarray.scale(nd: self ndarray, alpha: real): ndarray
+{
+	n := nd.m * nd.n;
+	gemm('N','N',n,1,n,0.,nil,0,nil,0,alpha,nd.a,n);
+	return nd;
+}
+
+ndarray.copy(nd: self ndarray): ndarray
+{
+	ar := array[nd.m * nd.n] of real;
+	ar[0:] = nd.a;
+	return ndarray(nd.m, nd.L, nd.n, ar);
+}
 
 ndarray.col(nd: self ndarray, start, end: int): ndarray
 {
@@ -176,7 +194,7 @@ ndarray.divide(nd: self ndarray, val: ndarray): ndarray
 # (b,m,n) == (1,1,n)
 # (b,m,n) == (1,1,1)
 
-ndarray.broadcast(nd: self ndarray, val: ndarray, f: ufunc): ndarray
+ndarray.broadcast(nd: self ndarray, val: ndarray, f: bfunc): ndarray
 {
 	ar := array[nd.m * nd.n] of {* => .0};
 	if(nd.m == val.m && nd.n == val.n) {  # arrays are same shape
@@ -185,18 +203,24 @@ ndarray.broadcast(nd: self ndarray, val: ndarray, f: ufunc): ndarray
 				ar[i+nd.L*j] = f(nd.a[i+nd.L*j], val.a[i+nd.L*j]);
 			}
 		}
-	}else if(nd.n == val.n && val.m == 1) { # broadcast
+	}else if(nd.n == val.n && val.m == 1) { # broadcast val
 		for(i := 0; i < nd.m; i++) {
 			for(j := 0; j < nd.n; j++) {
 				ar[i+nd.L*j] = f(nd.a[i+nd.L*j], val.a[j]);
 			}
 		}
-	}else if(val.n == 1 && val.m == 1) { # broadcast
+	}else if(val.n == 1 && val.m == 1) { # broadcast val
 		for(i := 0; i < nd.m; i++) {
 			for(j := 0; j < nd.n; j++) {
 				ar[i+nd.L*j] = f(nd.a[i+nd.L*j], val.a[0]);
 			}
 		}
+	} else if(nd.n == 1 && nd.m == 1) { # broadcast nd
+		ar = array[val.m * val.n] of {* => .0};
+		for(i := 0; i < val.m; i++)
+			for(j := 0; j < val.n; j++)
+				ar[i+val.L*j] = f(nd.a[0], val.a[i+val.L*j]);
+		return ndarray(val.m, val.L, val.n, ar);
 	}else{
 		print("(%d,%d), (%d, %d)\n", nd.m, nd.n, val.m, val.n);
 		raise "shape mismatch";
@@ -205,7 +229,7 @@ ndarray.broadcast(nd: self ndarray, val: ndarray, f: ufunc): ndarray
 	return ndarray(nd.m, nd.L, nd.n, ar);
 }
 
-ndarray.apply(nd: self ndarray, val: real, f: ufunc): ndarray
+ndarray.apply(nd: self ndarray, val: real, f: bfunc): ndarray
 {
 	ar := array[nd.m*nd.n] of {* => .0};
 
@@ -215,12 +239,25 @@ ndarray.apply(nd: self ndarray, val: real, f: ufunc): ndarray
 	return ndarray(nd.m, nd.L, nd.n, ar);
 }
 
+ndarray.apply1(nd: self ndarray, f: ufunc): ndarray
+{
+	ar := array[nd.m*nd.n] of {* => .0};
+
+	for(i := 0; i < nd.m; i++)
+		for(j := 0; j < nd.n; j++)
+			ar[i+nd.L*j] = f(nd.a[i+nd.L*j]);
+	return ndarray(nd.m, nd.L, nd.n, ar);
+}
+
 ndarray.print(nd: self ndarray, name: string)
 {
 	m := nd.m;
+	n := nd.n;
 	if(m > 30)
 		m = 30;
-	printmat(name, nd.a, nd.L, m, nd.n);
+	if(n > 10)
+		n = 10;
+	printmat(name, nd.a, nd.L, m, n);
 }
 
 ndarray.sum(nd: self ndarray): ndarray
@@ -284,7 +321,7 @@ read_csv(name: string): (int, int, int, array of real)
 			w: string;
 			(rr, w) = toreal(hd row, 10);
 			v[i+lda*j] = rr;
-			print("%d, %g\n", i, rr);
+			#print("%d, %g\n", i, rr);
 			row = tl row;
 		}
 		lines = tl lines;
