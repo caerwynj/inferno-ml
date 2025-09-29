@@ -1,0 +1,14 @@
+# Linear regression, single feature
+t7.dis ex1data1.txt  > t7.out;
+
+# Linear regression, multi feature
+t9.dis ex1data2.txt > t9.out;
+
+# plot cost
+#t10.dis j_hist.csv;
+
+# plot cost
+#t14.dis j_hist.csv;
+
+# Logistic regression
+t13.dis ex2data1.txt > t13.out;

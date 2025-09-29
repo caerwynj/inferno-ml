@@ -2,3 +2,5 @@
 *.sbl
 *.pat
 j_hist.csv
+*.out
+

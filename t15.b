@@ -12,6 +12,6 @@ main(nil: list of string)
 
 	(r, nil) := toreal(s, 10);
 
-	sprint("%f\n", r);
+	print("%f\n", r);
 }
 

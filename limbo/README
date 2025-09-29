@@ -1,7 +1,0 @@
-Something flakey with sprint("%f") and then doing toreal() on the string.  Breaks for some large numbers.
-
-s := sprint("%f", 8073423872.0)
-toreal(s, 10);
-
-Also  sprint("%g") crashes.
-
