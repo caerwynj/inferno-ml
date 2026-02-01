@@ -28,5 +28,4 @@ printvec(a: array of real)
 		print("%f, ", a[i]);
 	}
 	print("]\n");
-
 }

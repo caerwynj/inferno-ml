@@ -1,8 +1,8 @@
 # Linear regression, single feature
-t7.dis ../data/ex1data1.txt 
+t7.dis ex1data1.txt 
 
 # Linear regression, multi feature
-t9.dis ../data/ex1data2.txt
+t9.dis ex1data2.txt
 
 # plot cost
 t10.dis j_hist.csv
@@ -13,4 +13,9 @@ t14.dis j_hist.csv
 inferno wm/wm ./plotcost2.dis j_hist.csv
 
 # Logistic regression
+<<<<<<<< HEAD:appl/guide
 t13.dis ../data/ex2data1.txt
+========
+t13.dis ex2data1.txt
+
+>>>>>>>> 3ccab9eb9eac6f3f1218fe865fde3b19bfa46d2e:guide

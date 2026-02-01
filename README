@@ -1,1 +1,17 @@
-Implementing machine learning algorithms inside Inferno.
+# ML library in limbo
+
+A simple ndarray library inspired by python's ndarray, with some simple implementations
+of linear regression and logistic regression from an ML training course
+demonstrating gradient descent.
+
+The original code was written in octave.
+
+# Bugs
+(These bugs don't seem to be occurring on the latest inferno64 distribution)
+Something flakey with sprint("%f") and then doing toreal() on the string.  Breaks for some large numbers.
+```
+s := sprint("%f", 8073423872.0)
+toreal(s, 10);
+```
+Also `sprint("%g")` crashes.
+
