@@ -6,9 +6,11 @@ t9.dis ../data/ex1data2.txt
 
 # plot cost
 t10.dis j_hist.csv
+inferno wm/wm ./plotcost.dis j_hist.csv
 
 # plot cost
 t14.dis j_hist.csv
+inferno wm/wm ./plotcost2.dis j_hist.csv
 
 # Logistic regression
 t13.dis ../data/ex2data1.txt

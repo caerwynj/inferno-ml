@@ -1,0 +1,10 @@
+<$ROOT/mkconfig
+
+TARG=ndarray.dis\
+	linreg1.dis\
+	linregn.dis\
+	plotcost.dis\
+	logregn.dis\
+
+DISBIN=../dis
+<$ROOT/mkfiles/mkdis

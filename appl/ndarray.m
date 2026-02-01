@@ -1,5 +1,5 @@
 Ndarray: module {
-	PATH: con "ndarray.dis";
+	PATH: con "/dis/ndarray.dis";
 	ndarray: adt {
 		m, L, n: int;
 		a: array of real;
