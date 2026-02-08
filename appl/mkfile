@@ -1,10 +1,13 @@
 <$ROOT/mkconfig
 
+INCLUDES=-I../module
+
 TARG=ndarray.dis\
 	linreg1.dis\
 	linregn.dis\
 	plotcost.dis\
 	logregn.dis\
+	mlp.dis\
 
 DISBIN=../dis
 <$ROOT/mkfiles/mkdis

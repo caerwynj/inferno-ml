@@ -79,6 +79,129 @@ const(alpha: real): ndarray
 	return ndarray(1, 1, 1, array[1] of {alpha});
 }
 
+real_eq(x, y: real): real { if (x == y) return 1.0; return 0.0; }
+real_ne(x, y: real): real { if (x != y) return 1.0; return 0.0; }
+real_gt(x, y: real): real { if (x > y) return 1.0; return 0.0; }
+real_lt(x, y: real): real { if (x < y) return 1.0; return 0.0; }
+real_ge(x, y: real): real { if (x >= y) return 1.0; return 0.0; }
+real_le(x, y: real): real { if (x <= y) return 1.0; return 0.0; }
+
+ndarray.add(nd: self ndarray, val: ndarray): ndarray
+{
+	return nd.broadcast(val, add);
+}
+
+ndarray.multiply(nd: self ndarray, val: ndarray): ndarray
+{
+	return nd.broadcast(val, mul);
+}
+
+ndarray.eq(nd: self ndarray, val: ndarray): ndarray
+{
+	return nd.broadcast(val, real_eq);
+}
+
+ndarray.ne(nd: self ndarray, val: ndarray): ndarray
+{
+	return nd.broadcast(val, real_ne);
+}
+
+ndarray.gt(nd: self ndarray, val: ndarray): ndarray
+{
+	return nd.broadcast(val, real_gt);
+}
+
+ndarray.lt(nd: self ndarray, val: ndarray): ndarray
+{
+	return nd.broadcast(val, real_lt);
+}
+
+ndarray.ge(nd: self ndarray, val: ndarray): ndarray
+{
+	return nd.broadcast(val, real_ge);
+}
+
+ndarray.le(nd: self ndarray, val: ndarray): ndarray
+{
+	return nd.broadcast(val, real_le);
+}
+
+ndarray.argmax(nd: self ndarray): int
+{
+	if(len nd.a == 0) return -1;
+	max_val := nd.a[0];
+	max_idx := 0;
+	# Iterate considering stride L, but generally finding global max implies fully scanning.
+	# nd.a can be strided. We must iterate logically.
+	for(i := 0; i < nd.m; i++) {
+		for(j := 0; j < nd.n; j++) {
+			val := nd.a[i + nd.L*j];
+			if(val > max_val) {
+				max_val = val;
+				# Return flat index as widely expected?
+				# If we flatten, index is column-major: i + m*j
+				max_idx = i + nd.m*j; 
+			}
+		}
+	}
+	return max_idx;
+}
+
+ndarray.max(nd: self ndarray): real
+{
+	if(len nd.a == 0) return 0.0; # Should raise error?
+	max_val := nd.a[0];
+	first := 1;
+	for(i := 0; i < nd.m; i++) {
+		for(j := 0; j < nd.n; j++) {
+			val := nd.a[i + nd.L*j];
+			if(first || val > max_val) {
+				max_val = val;
+				first = 0;
+			}
+		}
+	}
+	return max_val;
+}
+
+ndarray.min(nd: self ndarray): real
+{
+	if(len nd.a == 0) return 0.0;
+	min_val := nd.a[0];
+	first := 1;
+	for(i := 0; i < nd.m; i++) {
+		for(j := 0; j < nd.n; j++) {
+			val := nd.a[i + nd.L*j];
+			if(first || val < min_val) {
+				min_val = val;
+				first = 0;
+			}
+		}
+	}
+	return min_val;
+}
+
+ndarray.reshape(nd: self ndarray, m, n: int): ndarray
+{
+	if(m * n != nd.m * nd.n) {
+		raise "reshape dimension mismatch";
+	}
+	# To ensure safety with strides, we copy to a packed array first.
+	new_a := array[m*n] of real;
+	k := 0;
+	for(j := 0; j < nd.n; j++) {
+		for(i := 0; i < nd.m; i++) {
+			new_a[k++] = nd.a[i + nd.L*j];
+		}
+	}
+	return ndarray(m, m, n, new_a);
+}
+
+ndarray.flatten(nd: self ndarray): ndarray
+{
+	return nd.reshape(nd.m * nd.n, 1);
+}
+
 ndarray.scale(nd: self ndarray, alpha: real): ndarray
 {
 	n := nd.m * nd.n;
@@ -200,22 +323,32 @@ ndarray.broadcast(nd: self ndarray, val: ndarray, f: bfunc): ndarray
 	if(nd.m == val.m && nd.n == val.n) {  # arrays are same shape
 		for(i := 0; i < nd.m; i++) {
 			for(j := 0; j < nd.n; j++) {
-				ar[i+nd.L*j] = f(nd.a[i+nd.L*j], val.a[i+nd.L*j]);
+				ar[i+nd.L*j] = f(nd.a[i+nd.L*j], val.a[i+val.L*j]);
 			}
 		}
-	}else if(nd.n == val.n && val.m == 1) { # broadcast val
+	}else if(nd.n == val.n && val.m == 1) { # broadcast val (Row vector)
 		for(i := 0; i < nd.m; i++) {
 			for(j := 0; j < nd.n; j++) {
-				ar[i+nd.L*j] = f(nd.a[i+nd.L*j], val.a[j]);
+				# val is 1xN. Access element (0, j).
+				# Stride respected: val.a[0 + val.L*j]
+				ar[i+nd.L*j] = f(nd.a[i+nd.L*j], val.a[val.L*j]);
 			}
 		}
-	}else if(val.n == 1 && val.m == 1) { # broadcast val
+	}else if(nd.m == val.m && val.n == 1) { # broadcast val (Column vector)
+		for(i := 0; i < nd.m; i++) {
+			for(j := 0; j < nd.n; j++) {
+				# val is Mx1. Access element (i, 0).
+				# Stride respected: val.a[i + val.L*0]
+				ar[i+nd.L*j] = f(nd.a[i+nd.L*j], val.a[i]);
+			}
+		}
+	}else if(val.n == 1 && val.m == 1) { # broadcast val (Scalar)
 		for(i := 0; i < nd.m; i++) {
 			for(j := 0; j < nd.n; j++) {
 				ar[i+nd.L*j] = f(nd.a[i+nd.L*j], val.a[0]);
 			}
 		}
-	} else if(nd.n == 1 && nd.m == 1) { # broadcast nd
+	} else if(nd.n == 1 && nd.m == 1) { # broadcast nd (Scalar)
 		ar = array[val.m * val.n] of {* => .0};
 		for(i := 0; i < val.m; i++)
 			for(j := 0; j < val.n; j++)

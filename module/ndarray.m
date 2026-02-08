@@ -20,11 +20,26 @@ Ndarray: module {
 		scale: fn(nd: self ndarray, alpha: real): ndarray;
 		copy: fn(nd: self ndarray): ndarray;
 
-	# flatten, transpose, item, reshape, argmax
-	# max, min, var, all, any, lt, le, gt, ge, eq, ne
-	# inplace apply
-	# inplace broadcast  
-	# reduce
+		# Arithmetic
+		add: fn(nd: self ndarray, val: ndarray): ndarray;
+		multiply: fn(nd: self ndarray, val: ndarray): ndarray;
+		
+		# Comparisons
+		eq: fn(nd: self ndarray, val: ndarray): ndarray;
+		ne: fn(nd: self ndarray, val: ndarray): ndarray;
+		gt: fn(nd: self ndarray, val: ndarray): ndarray;
+		lt: fn(nd: self ndarray, val: ndarray): ndarray;
+		ge: fn(nd: self ndarray, val: ndarray): ndarray;
+		le: fn(nd: self ndarray, val: ndarray): ndarray;
+
+		# Reductions
+		argmax: fn(nd: self ndarray): int;
+		max: fn(nd: self ndarray): real;
+		min: fn(nd: self ndarray): real;
+
+		# Shape
+		reshape: fn(nd: self ndarray, m, n: int): ndarray;
+		flatten: fn(nd: self ndarray): ndarray;
 	};
 	
 	ufunc: type ref fn(x: real): real;
